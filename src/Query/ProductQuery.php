@@ -45,7 +45,7 @@ class ProductQuery
         $result = $qb->execute();
 
        
-        error_log("Fetched products: " . json_encode($result));
+        
 
         return $result;
     }
@@ -56,7 +56,7 @@ class ProductQuery
         $db = Database::getConnection();
         $qb = new QueryBuilder($db);
 
-        error_log("Building SQL for getProductById with ID: " . json_encode($id));
+        
 
         $qb->select([
             "p.id",
@@ -84,10 +84,10 @@ class ProductQuery
             ->where("p.id", "=", $id);
 
         $sql = $qb->getQuery(); 
-        error_log("Executing SQL: " . $sql);
+       
 
         $result = $qb->execute();
-        error_log("SQL Query Result: " . json_encode($result));
+       
 
         return $result;
     }

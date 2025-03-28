@@ -6,17 +6,14 @@ class ProductTransformer
 {
     public static function transformProductRows(array $rows): array
     {
-        if (empty($rows)) {
-            error_log("ProductTransformer: No data received from database");
-            return [];
-        }
+        
 
-        error_log("ProductTransformer received: " . json_encode($rows));
+        
 
         $products = [];
 
         foreach ($rows as $row) {
-            error_log("Processing product: " . json_encode($row));
+            
 
             $productId = $row['id'];
 

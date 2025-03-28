@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Validator;
+namespace App\Validators;
 
 use App\Models\Product;
 use RuntimeException;
 
 class OrderValidator
 {
-    public function __construct(private Product $productModel) {}
+    public function __construct(
+        private Product $productModel 
+    ) {}
 
     public function validateOrderItems(array $items): void
     {
@@ -17,7 +19,7 @@ class OrderValidator
 
         foreach ($items as $productId) {
             $product = $this->productModel->getProductById($productId);
-            
+
             if (!$product) {
                 throw new RuntimeException("Product {$productId} does not exist");
             }

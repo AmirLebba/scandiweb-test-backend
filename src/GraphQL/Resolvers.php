@@ -6,21 +6,28 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Attribute;
+use App\Validators\OrderValidator;
 use Exception;
+use PDO;
 
 class Resolvers
 {
-    private $product;
-    private $category;
-    private $order;
-    private $attribute;
+    private Product $product;
+    private Category $category;
+    private Order $order;
+    private Attribute $attribute;
 
     public function __construct()
     {
-        $this->product = new Product();
-        $this->category = new Category();
-        $this->order = new Order();
-        $this->attribute = new Attribute();
+        $db = \App\Config\Database::getConnection();
+
+        // Initialize all models with the SAME database connection
+        $this->product = new Product($db);
+        $this->category = new Category($db);
+        $this->attribute = new Attribute($db);
+
+        $validator = new OrderValidator($this->product); // Reuse existing product instance
+        $this->order = new Order($db, $validator);
     }
 
     public function getProducts($root, $args)
@@ -28,16 +35,19 @@ class Resolvers
         try {
             return $this->product->getAllProducts($args['categoryId'] ?? null);
         } catch (Exception $e) {
-            return ['error' => 'Failed to fetch products: ' . $e->getMessage()];
+            error_log("Product fetch error: " . $e->getMessage());
+            return ['error' => 'Failed to fetch products'];
         }
     }
 
     public function getProductById($root, $args)
     {
         try {
-            return $this->product->getProductById($args['id']) ?? ['error' => 'Product not found'];
+            $product = $this->product->getProductById($args['id']);
+            return $product ?? ['error' => 'Product not found'];
         } catch (Exception $e) {
-            return ['error' => 'Failed to fetch product: ' . $e->getMessage()];
+            error_log("Product fetch error: " . $e->getMessage());
+            return ['error' => 'Failed to fetch product'];
         }
     }
 
@@ -46,13 +56,22 @@ class Resolvers
         try {
             return $this->category->getAllCategories();
         } catch (Exception $e) {
-            return ['error' => 'Failed to fetch categories: ' . $e->getMessage()];
+            error_log("Category fetch error: " . $e->getMessage());
+            return ['error' => 'Failed to fetch categories'];
         }
     }
 
-    // In your resolver class
     public function placeOrder($root, array $args): array
     {
-        return $this->order->placeOrder($args['items']);
+        try {
+            if (empty($args['items'])) {
+                return ['success' => false, 'message' => 'No items in order'];
+            }
+
+            return $this->order->placeOrder($args['items']);
+        } catch (Exception $e) {
+            error_log("Order placement error: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Order processing failed'];
+        }
     }
 }
