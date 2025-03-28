@@ -1,16 +1,17 @@
 <?php
 
-// src/Config/Database.php
 namespace App\Config;
 
 use PDO;
 use PDOException;
 use Dotenv\Dotenv;
 
-class Database {
+class Database
+{
     private static $connection = null;
 
-    public static function getConnection() {
+    public static function getConnection()
+    {
         if (self::$connection === null) {
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
             $dotenv->load();

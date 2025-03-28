@@ -8,7 +8,7 @@ use App\Models\Order;
 use App\Models\Attribute;
 use App\Validators\OrderValidator;
 use Exception;
-use PDO;
+
 
 class Resolvers
 {
@@ -21,12 +21,12 @@ class Resolvers
     {
         $db = \App\Config\Database::getConnection();
 
-        // Initialize all models with the SAME database connection
+       
         $this->product = new Product($db);
         $this->category = new Category($db);
         $this->attribute = new Attribute($db);
 
-        $validator = new OrderValidator($this->product); // Reuse existing product instance
+        $validator = new OrderValidator($this->product); 
         $this->order = new Order($db, $validator);
     }
 
