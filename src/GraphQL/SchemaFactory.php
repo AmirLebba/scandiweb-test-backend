@@ -6,28 +6,41 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use App\GraphQL\Types\TypeRegistry;
-use App\GraphQL\Resolvers;
+use App\Config\Database;
 
 class SchemaFactory
 {
     public static function create(): Schema
     {
+       
+        $db = Database::getConnection();
+
+        $productModel = new \App\Models\Product($db);
+        $categoryModel = new \App\Models\Category($db);
+        $orderModel = new \App\Models\Order(
+            $db,
+            new \App\Validators\OrderValidator($productModel)
+        );
+
+        $queryResolver = new \App\GraphQL\QueryResolver($productModel, $categoryModel);
+        $mutationResolver = new \App\GraphQL\MutationResolver($orderModel);
+
         $queryType = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'products' => [
                     'type' => Type::listOf(TypeRegistry::product()),
                     'args' => ['categoryId' => ['type' => Type::int()]],
-                    'resolve' => fn($root, $args) => (new Resolvers())->getProducts($root, $args),
+                    'resolve' => [$queryResolver, 'getProducts'],
                 ],
                 'product' => [
                     'type' => TypeRegistry::product(),
                     'args' => ['id' => ['type' => Type::string()]],
-                    'resolve' => fn($root, $args) => (new Resolvers())->getProductById($root, $args),
+                    'resolve' => [$queryResolver, 'getProductById'],
                 ],
                 'categories' => [
                     'type' => Type::listOf(TypeRegistry::category()),
-                    'resolve' => fn() => (new Resolvers())->getCategories(),
+                    'resolve' => [$queryResolver, 'getCategories'],
                 ],
             ],
         ]);
@@ -40,7 +53,7 @@ class SchemaFactory
                     'args' => [
                         'items' => Type::listOf(Type::string()),
                     ],
-                    'resolve' => fn($root, $args) => (new Resolvers())->placeOrder($root, $args),
+                    'resolve' => [$mutationResolver, 'placeOrder'],
                 ],
             ],
         ]);
