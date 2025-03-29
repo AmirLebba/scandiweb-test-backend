@@ -6,15 +6,11 @@ class ProductTransformer
 {
     public static function transformProductRows(array $rows): array
     {
-        
-
-        
 
         $products = [];
 
         foreach ($rows as $row) {
             
-
             $productId = $row['id'];
 
             if (!isset($products[$productId])) {
@@ -31,7 +27,6 @@ class ProductTransformer
                 ];
             }
 
-
             if (!empty($row['price'])) {
                 $currencyKey = $row['currency_label'] . $row['currency_symbol'];
                 $existingCurrencies = array_column($products[$productId]['prices'], 'currency');
@@ -47,11 +42,9 @@ class ProductTransformer
                 }
             }
 
-
             if (!empty($row['image_url']) && !in_array($row['image_url'], $products[$productId]['gallery'])) {
                 $products[$productId]['gallery'][] = $row['image_url'];
             }
-
 
             if (!empty($row['attribute_name']) && !empty($row['attribute_id'])) {
                 $attributeKey = $row['attribute_id']; 
@@ -65,7 +58,6 @@ class ProductTransformer
                     ];
                 }
 
-
                 $existingValues = array_column($products[$productId]['attributes'][$attributeKey]['items'], 'value');
                 if (!in_array($row['value'], $existingValues)) {
                     $products[$productId]['attributes'][$attributeKey]['items'][] = [
@@ -76,7 +68,6 @@ class ProductTransformer
                 }
             }
         }
-
 
         foreach ($products as &$product) {
             $product['attributes'] = array_values($product['attributes']);

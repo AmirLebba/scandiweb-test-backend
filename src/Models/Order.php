@@ -10,9 +10,7 @@ use Throwable;
 
 class Order extends AbstractModel
 {
-
     private OrderValidator $validator;
-
 
     public function __construct(PDO $db, OrderValidator $validator)
     {

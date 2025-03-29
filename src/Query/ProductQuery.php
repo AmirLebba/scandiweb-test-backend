@@ -10,9 +10,9 @@ class ProductQuery
     public static function getAllProductsQuery($categoryId = null)
     {
         $db = Database::getConnection();
-        $qb = new QueryBuilder($db);
+        $queryBuilder = new QueryBuilder($db);
 
-        $qb->select([
+        $queryBuilder->select([
             "p.id",
             "p.name",
             "p.category_id",
@@ -37,28 +37,21 @@ class ProductQuery
             ->leftJoin("attributes a", "pav.attribute_id = a.id");
 
         if ($categoryId !== null && $categoryId != 1) {
-            $qb->where("p.category_id", "=", $categoryId);
+            $queryBuilder->where("p.category_id", "=", $categoryId);
         }
 
-        $qb->orderBy("p.name");
+        $queryBuilder->orderBy("p.name");
 
-        $result = $qb->execute();
-
-       
-        
+        $result = $queryBuilder->execute();
 
         return $result;
     }
-
-
     public static function getProductByIdQuery($id)
     {
         $db = Database::getConnection();
-        $qb = new QueryBuilder($db);
+        $queryBuilder = new QueryBuilder($db);
 
-        
-
-        $qb->select([
+        $queryBuilder->select([
             "p.id",
             "p.name",
             "p.category_id",
@@ -83,12 +76,10 @@ class ProductQuery
             ->leftJoin("attributes a", "pav.attribute_id = a.id")
             ->where("p.id", "=", $id);
 
-        $sql = $qb->getQuery(); 
+        $sql = $queryBuilder->getQuery(); 
        
-
-        $result = $qb->execute();
+        $result = $queryBuilder->execute();
        
-
         return $result;
     }
 }

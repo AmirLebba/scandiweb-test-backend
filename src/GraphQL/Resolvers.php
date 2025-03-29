@@ -9,7 +9,6 @@ use App\Models\Attribute;
 use App\Validators\OrderValidator;
 use Exception;
 
-
 class Resolvers
 {
     private Product $product;
@@ -21,7 +20,6 @@ class Resolvers
     {
         $db = \App\Config\Database::getConnection();
 
-       
         $this->product = new Product($db);
         $this->category = new Category($db);
         $this->attribute = new Attribute($db);
