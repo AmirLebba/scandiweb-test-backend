@@ -7,23 +7,32 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use App\GraphQL\Types\TypeRegistry;
 use App\Config\Database;
+use App\GraphQL\Resolvers\ProductListResolver;
+use App\GraphQL\Resolvers\ProductDetailResolver;
+use App\GraphQL\Resolvers\CategoryResolver;
+use App\GraphQL\Resolvers\OrderResolver;
+use App\Models\Product;
+use App\Models\Category;
+use App\Models\Order;
+use App\Validators\OrderValidator;
 
 class SchemaFactory
 {
     public static function create(): Schema
     {
-       
         $db = Database::getConnection();
 
-        $productModel = new \App\Models\Product($db);
-        $categoryModel = new \App\Models\Category($db);
-        $orderModel = new \App\Models\Order(
+        $productModel = new Product($db);
+        $categoryModel = new Category($db);
+        $orderModel = new Order(
             $db,
-            new \App\Validators\OrderValidator($productModel)
+            new OrderValidator($productModel)
         );
 
-        $queryResolver = new \App\GraphQL\QueryResolver($productModel, $categoryModel);
-        $mutationResolver = new \App\GraphQL\MutationResolver($orderModel);
+        $productListResolver = new ProductListResolver($productModel);
+        $productDetailResolver = new ProductDetailResolver($productModel);
+        $categoryResolver = new CategoryResolver($categoryModel);
+        $orderResolver = new OrderResolver($orderModel);
 
         $queryType = new ObjectType([
             'name' => 'Query',
@@ -31,16 +40,16 @@ class SchemaFactory
                 'products' => [
                     'type' => Type::listOf(TypeRegistry::product()),
                     'args' => ['categoryId' => ['type' => Type::int()]],
-                    'resolve' => [$queryResolver, 'getProducts'],
+                    'resolve' => [$productListResolver, 'getProducts'],
                 ],
                 'product' => [
                     'type' => TypeRegistry::product(),
                     'args' => ['id' => ['type' => Type::string()]],
-                    'resolve' => [$queryResolver, 'getProductById'],
+                    'resolve' => [$productDetailResolver, 'getProductById'],
                 ],
                 'categories' => [
                     'type' => Type::listOf(TypeRegistry::category()),
-                    'resolve' => [$queryResolver, 'getCategories'],
+                    'resolve' => [$categoryResolver, 'getCategories'],
                 ],
             ],
         ]);
@@ -50,10 +59,8 @@ class SchemaFactory
             'fields' => [
                 'placeOrder' => [
                     'type' => TypeRegistry::orderResponse(),
-                    'args' => [
-                        'items' => Type::listOf(Type::string()),
-                    ],
-                    'resolve' => [$mutationResolver, 'placeOrder'],
+                    'args' => ['items' => Type::listOf(Type::string())],
+                    'resolve' => [$orderResolver, 'placeOrder'],
                 ],
             ],
         ]);

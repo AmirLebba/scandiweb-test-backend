@@ -1,16 +1,13 @@
 <?php
 
-namespace App\GraphQL;
+namespace App\GraphQL\Resolvers;
 
 use App\Models\Order;
-use App\Validators\OrderValidator;
 use Exception;
 
-class MutationResolver
+class OrderResolver
 {
-    public function __construct(
-        private Order $order
-    ) {}
+    private $order;
 
     public function placeOrder($root, array $args): array
     {

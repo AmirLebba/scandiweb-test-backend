@@ -10,11 +10,6 @@ abstract class AbstractModel
 {
     protected $db;
 
-    public function __construct()
-    {
-        $this->db = Database::getConnection();
-    }
-
     private function executeQuery($query, $params = [], $fetchMode = PDO::FETCH_ASSOC, $fetchAll = true)
     {
         try {

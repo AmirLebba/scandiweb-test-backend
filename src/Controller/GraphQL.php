@@ -15,6 +15,7 @@ class GraphQL
             $schema = SchemaFactory::create();
 
             $rawInput = file_get_contents('php://input');
+            
             if ($rawInput === false) {
                 throw new RuntimeException('Failed to read input');
             }

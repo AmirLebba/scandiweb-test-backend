@@ -12,12 +12,6 @@ class Order extends AbstractModel
 {
     private OrderValidator $validator;
 
-    public function __construct(PDO $db, OrderValidator $validator)
-    {
-        parent::__construct($db);
-        $this->validator = $validator;
-    }
-
     public function placeOrder(array $items): array
     {
         try {
