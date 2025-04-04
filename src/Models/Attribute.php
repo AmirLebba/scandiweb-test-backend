@@ -2,17 +2,23 @@
 
 namespace App\Models;
 
+use App\Database\QueryBuilder;
+
 class Attribute extends AbstractModel
 {
     public function getAttributesByProductId($productId)
     {
-        $query = "
-            SELECT a.id, a.name, a.type, pav.value, pav.display_value
-            FROM product_attribute_values pav
-            JOIN attributes a ON pav.attribute_id = a.id
-            WHERE pav.product_id = :productId
-        ";
-
-        return $this->fetchAll($query, [':productId' => $productId]);
+        return (new QueryBuilder($this->db))
+            ->select([
+                'a.id', 
+                'a.name', 
+                'a.type', 
+                'pav.value', 
+                'pav.display_value'
+            ])
+            ->from('product_attribute_values pav')
+            ->leftJoin('attributes a', 'pav.attribute_id = a.id')
+            ->where('pav.product_id', '=', $productId)
+            ->execute();
     }
 }
